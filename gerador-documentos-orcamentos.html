@@ -312,7 +312,7 @@
         <div class="preview-actions" id="action-buttons">
           <button class="btn btn-secondary" type="button" onclick="printDoc('orcamento')">Gerar Orçamento</button>
           <button class="btn btn-secondary" type="button" onclick="printDoc('recibo')">Gerar Recibo</button>
-          <!-- O Copilot vai inserir o novo botão de Enviar E-mail aqui -->
+          <button class="btn btn-primary" type="button" id="btnSendWebhook">Preparar E-mail</button>
         </div>
       </div>
 
@@ -396,6 +396,9 @@
   </div>
 
   <script>
+    // URL do Webhook (Make/Zapier) — substitua pela URL real de integração
+    const WEBHOOK_URL = 'https://hook.us1.make.com/SUBSTITUA_PELA_SUA_URL_AQUI';
+
     const allFields = [
       'supplierCompany','supplierCnpj','supplierContact','supplierEmail','supplierAddress',
       'clientName','clientCnpj','clientAddress','clientContacts',
@@ -609,6 +612,51 @@
         render();
       });
     });
+
+    // Integração via Webhook (Make/Zapier) para criar rascunho de e-mail
+    async function sendToWebhook(){
+      const btn = document.getElementById('btnSendWebhook');
+      const originalText = btn.textContent;
+      const originalStyle = btn.getAttribute('style') || '';
+
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+
+      const payload = {
+        ...getData(),
+        htmlOrcamento: document.getElementById('orcamentoSheet').outerHTML,
+        htmlRecibo: document.getElementById('reciboSheet').outerHTML
+      };
+
+      try {
+        const response = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error(`Falha no envio (HTTP ${response.status})`);
+
+        btn.textContent = 'Rascunho criado!';
+        btn.style.backgroundColor = '#28a745';
+        btn.style.borderColor = '#28a745';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.setAttribute('style', originalStyle);
+          btn.disabled = false;
+        }, 3000);
+      } catch (err) {
+        btn.textContent = 'Erro ao enviar';
+        alert(`Erro ao enviar para o Webhook: ${err.message}`);
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.setAttribute('style', originalStyle);
+          btn.disabled = false;
+        }, 3000);
+      }
+    }
+
+    document.getElementById('btnSendWebhook').addEventListener('click', sendToWebhook);
 
     // Inicialização
     loadSupplierMemory();
