@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Orçamentos - Marah Souza</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/imask"></script>
+  <style>
+    :root,[data-theme="light"]{
+      --color-bg:#f7f4ef; --color-surface:#fcfaf7; --color-surface-2:#f3ece4;
+      --color-card:#fffdfa; --color-border:#d8ccbf; --color-divider:#e6ddd3;
+      --color-text:#27211d; --color-text-muted:#6b6259; --color-text-soft:#9e9489;
+      --color-primary:#8f755f; --color-primary-strong:#6f5645; --color-highlight:#efe4d7;
+      --shadow-sm:0 8px 24px rgba(70,46,25,.08); --shadow-lg:0 24px 60px rgba(70,46,25,.12);
+      --radius-sm:.65rem; --radius-md:1rem; --radius-lg:1.5rem;
+      --text-xs:.78rem; --text-sm:.92rem; --text-base:1rem;
+      --font-body:'Inter',system-ui,sans-serif; --font-display:'Playfair Display',Georgia,serif;
+      --font-script:'Great Vibes',cursive;
+    }
+    [data-theme="dark"]{
+      --color-bg:#120f0d; --color-surface:#1c1714; --color-surface-2:#251e1a;
+      --color-card:#201916; --color-border:#4b3d33; --color-divider:#352b24;
+      --color-text:#efe5db; --color-text-muted:#cabaaa; --color-text-soft:#928478;
+      --color-primary:#d0b39c; --color-primary-strong:#b89275; --color-highlight:#2b221d;
+      --shadow-sm:0 18px 40px rgba(0,0,0,.28); --shadow-lg:0 28px 80px rgba(0,0,0,.42);
+      --bg-layer-1:rgba(197,156,121,.18); --bg-layer-2:rgba(133,92,64,.14);
+      --bg-layer-3:rgba(208,179,156,.08); --bg-start:#120f0d; --bg-mid:#181310; --bg-end:#0d0b0a;
+      --panel-glow:rgba(208,179,156,.08); --panel-head-glow:rgba(208,179,156,.12);
+      --group-sheen:rgba(255,255,255,.04); --group-sheen-2:rgba(255,255,255,.02);
+      --sheet-start:#f8f3ee; --sheet-end:#fdf9f4; --sheet-accent-1:#d4b59b; --sheet-accent-2:#927761;
+    }
+    html[data-theme="dark"] body[data-palette="gold"]{
+      --color-bg:#0d0a09; --color-surface:#171311; --color-surface-2:#201915;
+      --color-card:#1b1512; --color-border:#5d4932; --color-divider:#3b2f23;
+      --color-text:#f3e8d7; --color-text-muted:#d7c3a5; --color-text-soft:#a58f72;
+      --color-primary:#d3a85c; --color-primary-strong:#b78535; --color-highlight:#261d16;
+      --bg-layer-1:rgba(211,168,92,.18); --bg-layer-2:rgba(134,93,35,.18);
+      --bg-layer-3:rgba(255,223,155,.06); --bg-start:#0c0908; --bg-mid:#15110f; --bg-end:#060505;
+      --panel-glow:rgba(211,168,92,.12); --panel-head-glow:rgba(211,168,92,.16);
+      --group-sheen:rgba(255,219,163,.05); --group-sheen-2:rgba(255,255,255,.015);
+      --sheet-start:#fbf5ec; --sheet-end:#fffaf1; --sheet-accent-1:#d6b16f; --sheet-accent-2:#8a652d;
+    }
+    html[data-theme="dark"] body[data-palette="wine"]{
+      --color-bg:#140c11; --color-surface:#201118; --color-surface-2:#291720;
+      --color-card:#24141b; --color-border:#64404e; --color-divider:#3e2530;
+      --color-text:#f3e3e8; --color-text-muted:#d4b8c2; --color-text-soft:#a07c89;
+      --color-primary:#c58ca3; --color-primary-strong:#9e5f78; --color-highlight:#2d1b23;
+      --bg-layer-1:rgba(169,77,110,.22); --bg-layer-2:rgba(90,35,52,.18);
+      --bg-layer-3:rgba(233,191,204,.08); --bg-start:#150d12; --bg-mid:#1f1018; --bg-end:#0b0709;
+      --panel-glow:rgba(197,140,163,.12); --panel-head-glow:rgba(197,140,163,.14);
+      --group-sheen:rgba(255,214,226,.04); --group-sheen-2:rgba(255,255,255,.015);
+      --sheet-start:#faf2f3; --sheet-end:#fff9f8; --sheet-accent-1:#c792a6; --sheet-accent-2:#7e4c5e;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      min-height:100vh; position:relative; overflow-x:hidden;
+      background: radial-gradient(circle at 12% 16%, var(--bg-layer-1), transparent 0 26%),
+                  radial-gradient(circle at 88% 8%, var(--bg-layer-2), transparent 0 22%),
+                  radial-gradient(circle at 78% 84%, var(--bg-layer-3), transparent 0 18%),
+                  linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 38%, var(--bg-end) 100%);
+      color:var(--color-text); font-family:var(--font-body); font-size:var(--text-base); line-height:1.55;
+    }
+    button,input,textarea,select{font:inherit;color:inherit}
+    button{cursor:pointer;border:none;background:none}
+    input,textarea,select{
+      width:100%; border:1px solid var(--color-border); background:var(--color-card);
+      border-radius:var(--radius-sm); padding:.78rem .9rem; transition:.18s ease;
+    }
+    textarea{min-height:90px;resize:vertical}
+    input:focus,textarea:focus,select:focus{
+      outline:none; border-color:var(--color-primary); box-shadow:0 0 0 4px rgba(143,117,95,.12);
+    }
+    .app{
+      width:min(1440px, calc(100% - 32px)); margin:24px auto; display:grid;
+      grid-template-columns:minmax(340px,430px) 1fr; gap:24px; align-items:start;
+    }
+    .panel,.preview-wrap{
+      background: radial-gradient(circle at top right, var(--panel-glow), transparent 24%),
+                  linear-gradient(180deg, var(--color-surface), var(--color-card));
+      border:1px solid var(--color-border); border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-sm); backdrop-filter:blur(14px);
+    }
+    .panel{position:sticky; top:20px; overflow:hidden;}
+    .panel-head{padding:20px 20px 16px; border-bottom:1px solid var(--color-divider); background:linear-gradient(180deg, var(--panel-head-glow), transparent 75%);}
+    .brandline{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:10px}
+    .brandmark{display:flex;align-items:center;gap:12px}
+    .brandmark svg{width:42px;height:42px;color:var(--color-primary-strong)}
+    .eyebrow{font-size:var(--text-xs);letter-spacing:.16em;text-transform:uppercase;color:var(--color-text-soft)}
+    .panel h1{font-family:var(--font-display);font-size:clamp(1.55rem, 2vw, 2rem);line-height:1.05;margin:.25rem 0 .5rem;}
+    .panel p{color:var(--color-text-muted);max-width:38ch;font-size:.9rem;}
+    .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:.8rem 1rem;border-radius:999px;border:1px solid transparent;
+      transition:.18s ease;font-weight:600;font-size:var(--text-sm);
+    }
+    .btn-primary{background:var(--color-primary-strong);color:#fff}
+    .btn-primary:hover{filter:brightness(.96)}
+    .btn-secondary{background:var(--color-highlight);border-color:var(--color-border)}
+    .btn-secondary:hover{background:var(--color-surface-2)}
+    .btn-ghost{border-color:var(--color-border);background:transparent}
+    .panel-body{padding:18px 20px 22px;display:grid;gap:16px;max-height:calc(100vh - 180px);overflow:auto}
+    .group{border:1px solid var(--color-divider);border-radius:1.1rem;padding:16px;background:linear-gradient(180deg, var(--group-sheen), var(--group-sheen-2))}
+    .palette-bar{margin-top:14px;padding:14px 14px 12px;border:1px solid var(--color-divider);border-radius:1rem;background:linear-gradient(180deg, var(--group-sheen), transparent)}
+    .palette-copy{display:grid;gap:2px;margin-bottom:10px}
+    .palette-copy strong{font-family:var(--font-display);font-size:1rem;font-weight:600}
+    .palette-switch{display:flex;flex-wrap:wrap;gap:8px}
+    .palette-btn{
+      padding:.72rem .88rem; border-radius:999px; border:1px solid var(--color-border);
+      background:rgba(255,255,255,.02); color:var(--color-text-muted); font-size:var(--text-sm); font-weight:600;
+    }
+    .palette-btn:hover{background:var(--color-highlight);color:var(--color-text)}
+    .palette-btn.is-active{background:var(--color-primary-strong);border-color:var(--color-primary-strong);color:#fff;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+    .group h2{font-family:var(--font-display);font-size:1.08rem;margin-bottom:12px;}
+    .grid{display:grid;gap:12px}
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .field{display:grid;gap:7px}
+    .field label{font-size:var(--text-xs);letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-soft);font-weight:700}
+    .preview-wrap{padding:22px;position:relative;overflow:hidden}
+    .preview-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}
+    .preview-head h2{font-family:var(--font-display);font-size:clamp(1.3rem,2vw,1.65rem)}
+    .preview-head p{color:var(--color-text-muted);max-width:48ch}
+    .preview-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+    .doc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+    .sheet{
+      background:linear-gradient(180deg,var(--sheet-start),var(--sheet-end));
+      color:#1e1a17; width:210mm; min-height:297mm; margin:0 auto;
+      padding:16mm 15mm 15mm; box-shadow:var(--shadow-lg); position:relative; overflow:hidden; border-radius:10px;
+    }
+    .sheet::before{
+      content:""; position:absolute;left:0;right:0;top:0;height:7px;
+      background:linear-gradient(90deg, var(--sheet-accent-1), var(--sheet-accent-2), var(--sheet-accent-1));
+    }
+    .doc-brand{text-align:center;margin-bottom:10px}
+    .script{font-family:var(--font-script);font-size:23pt;line-height:1}
+    .caps{font-family:var(--font-body);letter-spacing:.42em;font-size:9pt;margin-top:2px}
+    .tagline{font-family:var(--font-display);font-size:9.6pt;color:#6e645a;font-style:italic;margin-top:4px}
+    .contactline{font-size:8.7pt;color:#6b6259;margin-top:7px}
+    .divider{height:1px;background:#ddd2c6;margin:10px 0 12px}
+    .doc-title{font-family:var(--font-display);text-align:center;font-size:16pt;font-weight:700;letter-spacing:.02em;margin-bottom:6px}
+    .doc-sub{text-align:center;font-size:8.8pt;color:#6b6259;margin-bottom:12px}
+    .table{width:100%;border-collapse:collapse;font-size:9pt;margin:8px 0 14px}
+    .table td,.table th{border:1px solid #d7cbbd;padding:7px 8px;vertical-align:top}
+    .table th,.labelcell{background:#f4ece3;font-family:var(--font-display);font-weight:700;width:22%}
+    .table .mini{width:18%}
+    .section-title{font-family:var(--font-display);font-size:11.4pt;font-weight:700;margin:12px 0 5px}
+    .sub-title{font-family:var(--font-display);font-size:10.4pt;margin:6px 0 3px}
+    .doc-list{padding-left:16px;font-size:9.4pt}
+    .doc-list li{margin:2px 0}
+    .total-box{
+      border:1px solid #cdbba8;background:#f7efe7;border-radius:10px;
+      padding:10px 12px;text-align:center;margin:12px 0 12px
+    }
+    .total-box .label{font-size:8.5pt;letter-spacing:.14em;text-transform:uppercase;color:#6b6259;font-weight:700}
+    .total-box .value{font-family:var(--font-display);font-weight:700;font-size:14pt;margin-top:4px}
+    .notice{
+      border:1px solid #bfa791;background:#f7f0e8;border-radius:10px;
+      padding:11px 12px;font-size:9.2pt;line-height:1.45;margin-bottom:12px
+    }
+    .doc-p{font-size:9.5pt;text-align:justify}
+    .signature{margin-top:22px;text-align:center;font-size:9pt}
+    .signature .line{margin:0 auto 8px;width:62%;border-top:1px solid #6e645a;height:1px}
+    .obs{border:1px solid #d7cbbd;border-radius:10px;overflow:hidden;margin-top:10px}
+    .obs-head{background:#f4ece3;padding:7px 10px;font-family:var(--font-display);font-size:10pt;font-weight:700}
+    .obs-body{padding:9px 10px;font-size:9pt}
+    .obs-body b{color:#4a3f35}
+    .page-number{position:absolute;bottom:10mm;right:14mm;font-size:8pt;color:#887c70}
+    .print-only{display:none}
+    .footer-note{margin-top:8px;font-size:var(--text-xs);color:var(--color-text-soft)}
+    @media (max-width:1280px){
+      .app{grid-template-columns:1fr}
+      .panel{position:relative;top:auto}
+      .doc-grid{grid-template-columns:1fr}
+      .sheet{transform-origin:top center;max-width:100%;width:min(210mm,100%)}
+    }
+    @media (max-width:720px){
+      .app{width:min(100% - 20px, 1440px);margin:10px auto 24px;gap:16px}
+      .panel-head,.panel-body,.preview-wrap{padding:16px}
+      .group{padding:14px}
+      .palette-switch{display:grid;grid-template-columns:1fr}
+      .grid-2{grid-template-columns:1fr}
+      .preview-head,.preview-actions{display:grid;gap:12px}
+      .sheet{padding:14mm 11mm 14mm;box-shadow:none;border-radius:0}
+      .script{font-size:19pt}
+      .doc-title{font-size:14pt}
+    }
+    @page{size:A4;margin:0}
+    @media print{
+      body{background:#fff}
+      .app{display:block;width:auto;margin:0}
+      .panel,.preview-head,.footer-note,.toolbar{display:none !important}
+      .preview-wrap{padding:0;border:none;box-shadow:none;background:#fff}
+      .doc-grid{display:block}
+      .sheet{box-shadow:none;border-radius:0;margin:0 auto;page-break-after:always;break-after:page}
+      .sheet:last-child{page-break-after:auto;break-after:auto}
+      body[data-print="orcamento"] #reciboSheet,
+      body[data-print="recibo"] #orcamentoSheet{display:none !important}
+      .print-only{display:block}
+    }
+  </style>
+</head>
+<body data-print="all">
+  <div class="app">
+    <aside class="panel">
+      <div class="panel-head">
+        <div class="brandline">
+          <div class="brandmark">
+            <svg viewBox="0 0 64 64" fill="none" aria-label="Marah Souza Eventos">
+              <rect x="7" y="7" width="50" height="50" rx="14" stroke="currentColor" stroke-width="2.2"></rect>
+              <path d="M19 42V22h4.2l8.8 11.6L40.8 22H45v20h-4V28.4l-8.4 10.9h-1.2L23 28.4V42h-4Z" fill="currentColor"></path>
+            </svg>
+            <div>
+              <div class="eyebrow">Assistente administrativo</div>
+              <h1>Gerador elegante de orçamento</h1>
+            </div>
+          </div>
+          <button class="btn btn-ghost" type="button" data-theme-toggle aria-label="Alternar tema">☀</button>
+        </div>
+        <p>Os dados da empresa são salvos automaticamente. Revise a prévia e exporte em PDF.</p>
+        <div class="toolbar" id="top-toolbar">
+          <button class="btn btn-primary" type="button" onclick="fillSample()">Limpar / Exemplo</button>
+        </div>
+        <div class="palette-bar">
+          <div class="palette-copy"><span class="eyebrow">Variação visual</span><strong>Escolha o design do PDF</strong></div>
+          <div class="palette-switch" role="group">
+            <button class="palette-btn is-active" type="button" data-palette-btn="champagne">Café &amp; Champagne</button>
+            <button class="palette-btn" type="button" data-palette-btn="gold">Preto &amp; Dourado</button>
+            <button class="palette-btn" type="button" data-palette-btn="wine">Vinho Escuro</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel-body" id="form-container">
+
+        <section class="group">
+          <h2>Seus Dados (Salvos automaticamente)</h2>
+          <div class="grid">
+            <div class="field"><label>Empresa</label><input id="supplierCompany" placeholder="Ex: Marah Souza Eventos"></div>
+            <div class="field"><label>CNPJ</label><input id="supplierCnpj"></div>
+            <div class="field"><label>Contato (Telefone)</label><input id="supplierContact"></div>
+            <div class="field"><label>E-mail</label><input id="supplierEmail"></div>
+            <div class="field"><label>Endereço</label><textarea id="supplierAddress" style="min-height:50px"></textarea></div>
+          </div>
+        </section>
+
+        <section class="group">
+          <h2>Cliente / Tomador</h2>
+          <div class="grid">
+            <div class="field"><label>Razão social / Nome</label><input id="clientName"></div>
+            <div class="field"><label>CNPJ / CPF</label><input id="clientCnpj"></div>
+            <div class="field"><label>Endereço</label><textarea id="clientAddress" style="min-height:50px"></textarea></div>
+            <div class="field"><label>Contatos (Nome / E-mail)</label><textarea id="clientContacts" style="min-height:50px"></textarea></div>
+          </div>
+        </section>
+
+        <section class="group">
+          <h2>Detalhes do Evento</h2>
+          <div class="grid grid-2">
+            <div class="field"><label>Data de emissão (Auto)</label><input id="issueDateShort"></div>
+            <div class="field"><label>Emissão por extenso (Auto)</label><input id="issueDateLong"></div>
+            <div class="field" style="grid-column: span 2"><label>Data(s) do evento</label><input id="eventDateLong" placeholder="Ex: 31 de outubro, 14 de novembro..."></div>
+            <div class="field" style="grid-column: span 2"><label>Horário</label><input id="eventTime" placeholder="Ex: 14h00"></div>
+            <div class="field"><label>Qtd. de Convidados</label><input id="guestCount" type="number" min="1"></div>
+            <div class="field"><label>Valor p/ pessoa (R$)</label><input id="costPerPerson" type="number" step="0.01"></div>
+          </div>
+        </section>
+
+        <section class="group">
+          <h2>Pagamento (Calculado Automático)</h2>
+          <div class="grid">
+            <div class="field"><label>Valor total bruto</label><input id="totalValue" type="number" step="0.01"></div>
+            <div class="field"><label>Valor Pix (5% desc.)</label><input id="pixValue" type="number" step="0.01"></div>
+            <div class="grid grid-2">
+              <div class="field"><label>Qtd. Parcelas Cartão</label><input id="cardInstallments" type="number" min="1" value="2"></div>
+              <div class="field"><label>Valor da Parcela</label><input id="cardInstallmentValue" type="number" step="0.01"></div>
+            </div>
+            <div class="field"><label>Data limite para quitação</label><input id="dueDate" placeholder="Ex: Até a data do evento"></div>
+            <div class="field"><label>Outras observações / Custos extra</label><textarea id="paymentTerms"></textarea></div>
+          </div>
+        </section>
+
+        <section class="group">
+          <h2>Cardápio</h2>
+          <div class="grid">
+            <div class="field">
+              <label>Pacote Rápido (Preenchimento Automático)</label>
+              <select id="quickPackageSelect" onchange="applyPackage()">
+                <option value="">-- Escolha um pacote ou digite manualmente --</option>
+                <option value="tarde">Café da Tarde (Exemplo Encontro de Mulheres)</option>
+                <option value="manha">Café da Manhã Básico</option>
+                <option value="jantar">Jantar de Gala</option>
+              </select>
+            </div>
+            <div class="field"><label>Tipo de refeição</label><input id="menuType" placeholder="Ex: Café da tarde"></div>
+            <div class="field"><label>Título do serviço</label><input id="serviceTitle" placeholder="Ex: Serviço de buffet e locação"></div>
+            <div class="field"><label>Comidas (uma por linha)</label><textarea id="foodItems"></textarea></div>
+            <div class="field"><label>Bebidas (uma por linha)</label><textarea id="drinkItems"></textarea></div>
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <main class="preview-wrap">
+      <div class="preview-head">
+        <div>
+          <h2>Prévia pronta para impressão</h2>
+          <p>Salve em PDF usando as opções abaixo.</p>
+        </div>
+        <div class="preview-actions" id="action-buttons">
+          <button class="btn btn-secondary" type="button" onclick="printDoc('orcamento')">Gerar Orçamento</button>
+          <button class="btn btn-secondary" type="button" onclick="printDoc('recibo')">Gerar Recibo</button>
+          <!-- O Copilot vai inserir o novo botão de Enviar E-mail aqui -->
+        </div>
+      </div>
+
+      <div class="doc-grid">
+        <article class="sheet" id="orcamentoSheet">
+          <div class="doc-brand">
+            <div class="script" id="viewSupplierNameScript">Marah Souza</div>
+            <div class="caps">E V E N T O S</div>
+            <div class="tagline">Sofisticação e Excelência em cada detalhe</div>
+            <div class="contactline" id="orcSupplierLine"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="doc-title">ORÇAMENTO</div>
+          <div class="doc-sub" id="orcDocSub"></div>
+
+          <table class="table">
+            <tr><td class="labelcell">CLIENTE</td><td id="orcClientName"></td><td class="labelcell mini">DATA EMISSÃO</td><td id="orcIssueDate"></td></tr>
+            <tr><td class="labelcell">CNPJ/CPF</td><td id="orcClientCnpj"></td><td class="labelcell mini">DATA EVENTO</td><td id="orcEventDate"></td></tr>
+            <tr><td class="labelcell">ENDEREÇO</td><td id="orcClientAddress"></td><td class="labelcell mini">HORÁRIO</td><td id="orcTime"></td></tr>
+            <tr><td class="labelcell">CONTATOS</td><td id="orcContacts"></td><td class="labelcell mini">CONVIDADOS</td><td id="orcGuests"></td></tr>
+          </table>
+
+          <div class="section-title">CARDÁPIO</div>
+          <div class="sub-title" id="orcMenuType"></div>
+          <ul class="doc-list" id="orcFoods"></ul>
+          <div class="sub-title">Bebidas</div>
+          <ul class="doc-list" id="orcDrinks"></ul>
+
+          <div class="total-box">
+            <div class="label">Investimento Total</div>
+            <div class="value" id="orcTotal"></div>
+          </div>
+
+          <div class="obs">
+            <div class="obs-head">Formas de Pagamento e Observações</div>
+            <div class="obs-body" id="orcPaymentTerms"></div>
+          </div>
+          <div class="page-number">Página 1</div>
+        </article>
+
+        <article class="sheet" id="reciboSheet">
+          <div class="doc-brand">
+            <div class="script" id="viewSupplierNameScript2">Marah Souza</div>
+            <div class="caps">E V E N T O S</div>
+            <div class="tagline">Sofisticação e Excelência em cada detalhe</div>
+            <div class="contactline" id="recSupplierLine"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="doc-title">RECIBO / COMPROVANTE DE PRESTAÇÃO DE SERVIÇO</div>
+          <div class="doc-sub" id="recDocSub"></div>
+
+          <p class="doc-p" id="recIntro"></p>
+          <div class="notice" id="recPaymentNotice"></div>
+
+          <div class="section-title">DESCRIÇÃO DOS SERVIÇOS / ITENS</div>
+          <ul class="doc-list" id="recItems"></ul>
+
+          <div class="section-title">DADOS DO TOMADOR</div>
+          <table class="table">
+            <tr><td class="labelcell">NOME/RAZÃO SOCIAL</td><td id="recClientName"></td></tr>
+            <tr><td class="labelcell">CNPJ/CPF</td><td id="recClientCnpj"></td></tr>
+            <tr><td class="labelcell">ENDEREÇO</td><td id="recClientAddress"></td></tr>
+            <tr><td class="labelcell">E-MAIL / CONTATOS</td><td id="recContacts"></td></tr>
+          </table>
+
+          <div class="doc-p" id="recIssuePlace" style="margin-top:8px"></div>
+
+          <div class="total-box">
+            <div class="label">Valor total</div>
+            <div class="value" id="recTotal"></div>
+          </div>
+
+          <div class="signature">
+            <div class="line"></div>
+            <div id="recSignature"></div>
+          </div>
+          <div class="page-number">Página 1</div>
+        </article>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const allFields = [
+      'supplierCompany','supplierCnpj','supplierContact','supplierEmail','supplierAddress',
+      'clientName','clientCnpj','clientAddress','clientContacts',
+      'issueDateShort','issueDateLong','eventDateLong','eventTime','guestCount','costPerPerson','totalValue',
+      'pixValue', 'cardInstallments', 'cardInstallmentValue', 'dueDate', 'paymentTerms',
+      'menuType','serviceTitle','foodItems','drinkItems'
+    ];
+
+    // 1. Memória (LocalStorage) para dados da Fornecedora
+    const supplierFields = ['supplierCompany','supplierCnpj','supplierContact','supplierEmail','supplierAddress'];
+    function loadSupplierMemory() {
+      supplierFields.forEach(id => {
+        const stored = localStorage.getItem(`ms_eventos_${id}`);
+        if (stored) document.getElementById(id).value = stored;
+      });
+    }
+    function saveSupplierMemory(id, value) {
+      if (supplierFields.includes(id)) localStorage.setItem(`ms_eventos_${id}`, value);
+    }
+
+    // 2. Data Automática
+    function setAutoDates() {
+      const today = new Date();
+      const short = today.toLocaleDateString('pt-BR');
+      const long = today.toLocaleDateString('pt-BR', {day: 'numeric', month: 'long', year: 'numeric'});
+      document.getElementById('issueDateShort').value = short;
+      document.getElementById('issueDateLong').value = long;
+    }
+
+    // 3. Máscaras
+    document.addEventListener("DOMContentLoaded", () => {
+      IMask(document.getElementById('supplierCnpj'), { mask: '00.000.000/0000-00' });
+      IMask(document.getElementById('clientCnpj'), {
+        mask: [ {mask: '000.000.000-00'}, {mask: '00.000.000/0000-00'} ]
+      });
+    });
+
+    // 4. Pacotes de Cardápio
+    const packages = {
+      'tarde': {
+        menuType: 'Café da Tarde',
+        serviceTitle: 'Serviço de buffet para café da tarde e locação de salão',
+        foodItems: 'Torta de frango\nMini pão de queijo\nBolo de cenoura com chocolate\nLanchinhos (bauruzinho)',
+        drinkItems: 'Suco de laranja\nCafé\nChá de hibisco\nÁgua\nGuaraná\nPepsi'
+      },
+      'manha': {
+        menuType: 'Café da Manhã',
+        serviceTitle: 'Serviço de buffet para café da manhã',
+        foodItems: 'Pães variados\nFrios (Queijo e Presunto)\nFrutas da estação\nBolo simples',
+        drinkItems: 'Café\nLeite\nSuco de laranja\nÁgua'
+      }
+    };
+    function applyPackage() {
+      const val = document.getElementById('quickPackageSelect').value;
+      if(packages[val]){
+        document.getElementById('menuType').value = packages[val].menuType;
+        document.getElementById('serviceTitle').value = packages[val].serviceTitle;
+        document.getElementById('foodItems').value = packages[val].foodItems;
+        document.getElementById('drinkItems').value = packages[val].drinkItems;
+        render();
+      }
+    }
+
+    // Cálculos Automáticos
+    function autoCalculatePayments(e) {
+      const guests = Number(document.getElementById('guestCount').value || 0);
+      const cpp = Number(document.getElementById('costPerPerson').value || 0);
+
+      // Se alterou pessoas ou custo, atualiza o total
+      if ((e?.target?.id === 'guestCount' || e?.target?.id === 'costPerPerson') && guests > 0 && cpp > 0) {
+        document.getElementById('totalValue').value = (guests * cpp).toFixed(2);
+      }
+
+      const total = Number(document.getElementById('totalValue').value || 0);
+      const installments = Number(document.getElementById('cardInstallments').value || 1);
+
+      if (total > 0 && document.activeElement !== document.getElementById('pixValue')) {
+        document.getElementById('pixValue').value = (total * 0.95).toFixed(2);
+      }
+      if (total > 0 && installments > 0 && document.activeElement !== document.getElementById('cardInstallmentValue')) {
+        document.getElementById('cardInstallmentValue').value = (total / installments).toFixed(2);
+      }
+    }
+
+    // Listeners de Cálculo
+    ['guestCount', 'costPerPerson', 'totalValue', 'cardInstallments'].forEach(id => {
+      document.getElementById(id).addEventListener('input', autoCalculatePayments);
+    });
+
+    // Utilitários
+    function brl(value){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(value || 0)); }
+    function lines(text){ return String(text || '').split(/\n+/).map(v=>v.trim()).filter(Boolean); }
+    function joinLines(text){ return lines(text).join('<br>'); }
+    function renderList(targetId, items){ document.getElementById(targetId).innerHTML = items.map(item => `<li>${item}</li>`).join(''); }
+    function getData(){ return Object.fromEntries(allFields.map(id => [id, document.getElementById(id).value])); }
+
+    function render(){
+      const d = getData();
+
+      // Atualiza script principal (se a pessoa mudar o nome da empresa)
+      const nomeEmpresa = d.supplierCompany.split(' ')[0] || 'Marah Souza';
+      document.getElementById('viewSupplierNameScript').textContent = nomeEmpresa;
+      document.getElementById('viewSupplierNameScript2').textContent = nomeEmpresa;
+
+      const food = lines(d.foodItems);
+      const drink = lines(d.drinkItems);
+      const supplierLine = `${d.supplierCompany} · ${d.supplierAddress} · ${d.supplierContact} · ${d.supplierEmail}`;
+      const contactHtml = joinLines(d.clientContacts);
+      const guestText = `${d.guestCount || '-'} pessoas`;
+      const totalText = brl(d.totalValue);
+
+      const pixText = brl(d.pixValue);
+      const instCount = d.cardInstallments || '1';
+      const instValText = brl(d.cardInstallmentValue);
+      const limitDate = d.dueDate ? `(${d.dueDate})` : '';
+
+      let paymentLines = [
+        `<b>Pix à vista (5% de desconto):</b> ${pixText}`,
+        `<b>Cartão de crédito:</b> À vista ou parcelado em até ${instCount}x de ${instValText} (Total: ${totalText})`,
+        `<b>Condição:</b> Quitação total das parcelas até a data do evento ${limitDate}.`
+      ];
+
+      if (d.paymentTerms) paymentLines.push('', ...lines(d.paymentTerms));
+      const paymentHtml = paymentLines.map(item => item ? `• ${item}` : '<br>').join('<br>');
+
+      document.getElementById('orcSupplierLine').innerHTML = supplierLine;
+      document.getElementById('recSupplierLine').innerHTML = `${d.supplierCompany} · CNPJ: ${d.supplierCnpj} · ${d.supplierContact}`;
+      document.getElementById('orcDocSub').innerHTML = `${d.supplierCompany} · CNPJ: ${d.supplierCnpj}`;
+      document.getElementById('recDocSub').innerHTML = `${d.supplierCompany} · CNPJ: ${d.supplierCnpj}`;
+
+      document.getElementById('orcClientName').textContent = d.clientName;
+      document.getElementById('orcClientCnpj').textContent = d.clientCnpj;
+      document.getElementById('orcClientAddress').textContent = d.clientAddress;
+      document.getElementById('orcContacts').innerHTML = contactHtml;
+      document.getElementById('orcIssueDate').textContent = d.issueDateShort;
+      document.getElementById('orcEventDate').textContent = d.eventDateLong;
+      document.getElementById('orcTime').textContent = d.eventTime;
+      document.getElementById('orcGuests').textContent = guestText;
+      document.getElementById('orcTotal').textContent = totalText;
+      document.getElementById('orcPaymentTerms').innerHTML = paymentHtml;
+      document.getElementById('orcMenuType').textContent = d.menuType || 'Café da manhã';
+      renderList('orcFoods', food);
+      renderList('orcDrinks', drink);
+
+      const intro = `Emitimos para ${d.clientName}, inscrita no CNPJ/CPF sob o nº ${d.clientCnpj}, o presente documento referente à prestação de serviços no valor de ${totalText}, para evento a ser realizado em ${d.eventDateLong}, às ${d.eventTime}, para ${guestText}, conforme descrição dos itens abaixo.`;
+      document.getElementById('recIntro').textContent = intro;
+      document.getElementById('recPaymentNotice').innerHTML = paymentHtml;
+      renderList('recItems', [d.serviceTitle, ...food, ...drink].filter(Boolean));
+      document.getElementById('recClientName').textContent = d.clientName;
+      document.getElementById('recClientCnpj').textContent = d.clientCnpj;
+      document.getElementById('recClientAddress').textContent = d.clientAddress;
+      document.getElementById('recContacts').innerHTML = contactHtml;
+      document.getElementById('recIssuePlace').textContent = `São Paulo, ${d.issueDateLong}`;
+      document.getElementById('recTotal').textContent = totalText;
+      document.getElementById('recSignature').innerHTML = `${d.supplierCompany}<br>CNPJ: ${d.supplierCnpj}`;
+    }
+
+    function printDoc(type){
+      document.body.setAttribute('data-print', type);
+      window.print();
+    }
+
+    function fillSample(){
+      const sample = {
+        clientName:'Encontro de Mulheres',
+        clientCnpj:'', clientAddress:'', clientContacts:'',
+        eventDateLong:'31 de outubro, 14 de novembro e 05 de dezembro de 2026',
+        eventTime:'A definir', guestCount:'40', costPerPerson: '60', totalValue:'3900',
+        pixValue: '3705.00', cardInstallments: '2', cardInstallmentValue: '1950.00',
+        dueDate:'31/10/2026', paymentTerms:'Custos inclusos no valor total:\nTaxa de locação do salão: R$ 1.500,00',
+        menuType:'Café da tarde', serviceTitle:'Serviço de buffet para café da tarde e locação de salão',
+        foodItems:'Torta de frango\nMini pão de queijo\nBolo de cenoura com chocolate\nLanchinhos (bauruzinho)',
+        drinkItems:'Suco de laranja\nCafé\nChá de hibisco\nÁgua\nGuaraná\nPepsi'
+      };
+
+      // Só preenche o fornecedor se a memória estiver vazia
+      if(!localStorage.getItem('ms_eventos_supplierCompany')) {
+        document.getElementById('supplierCompany').value = 'Marah Souza Eventos';
+        document.getElementById('supplierCnpj').value = '61.474.591/0001-23';
+        document.getElementById('supplierContact').value = '(11) 98674-0461';
+        document.getElementById('supplierEmail').value = 'maralei883@gmail.com';
+        document.getElementById('supplierAddress').value = 'Rua Padre Raposo, 1326 - Mooca - São Paulo - SP';
+        supplierFields.forEach(id => saveSupplierMemory(id, document.getElementById(id).value));
+      }
+
+      Object.entries(sample).forEach(([id, value]) => document.getElementById(id).value = value);
+      render();
+    }
+
+    // Toggle Tema
+    const themeToggle = document.querySelector('[data-theme-toggle]');
+    themeToggle.addEventListener('click', () => {
+      const root = document.documentElement;
+      root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+      themeToggle.textContent = root.getAttribute('data-theme') === 'dark' ? '☀' : '☾';
+    });
+
+    // Seleção de Cores
+    document.querySelectorAll('.palette-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.setAttribute('data-palette', btn.dataset.paletteBtn);
+        document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+      });
+    });
+
+    // Inicia ouvintes de evento
+    allFields.forEach(id => {
+      document.getElementById(id).addEventListener('input', (e) => {
+        saveSupplierMemory(e.target.id, e.target.value);
+        render();
+      });
+    });
+
+    // Inicialização
+    loadSupplierMemory();
+    setAutoDates();
+    if(!localStorage.getItem('ms_eventos_supplierCompany')) fillSample();
+    render();
+  </script>
+</body>
+</html>
