@@ -396,8 +396,9 @@
   </div>
 
   <script>
-    // URL do Webhook (Make/Zapier) — substitua pela URL real de integração
+    // URL do Webhook (Make/Zapier) — substitua pela URL real de integração antes de publicar
     const WEBHOOK_URL = 'https://hook.us1.make.com/SUBSTITUA_PELA_SUA_URL_AQUI';
+    const WEBHOOK_PLACEHOLDER = WEBHOOK_URL.includes('SUBSTITUA_PELA_SUA_URL_AQUI');
 
     const allFields = [
       'supplierCompany','supplierCnpj','supplierContact','supplierEmail','supplierAddress',
@@ -613,46 +614,70 @@
       });
     });
 
-    // Integração via Webhook (Make/Zapier) para criar rascunho de e-mail
+    // Integração via Webhook (Make/Zapier) para preparar um rascunho de e-mail
+    function buildStandaloneHtml(articleEl){
+      // outerHTML sozinho não inclui o <style> do documento; embutimos o CSS
+      // para que o e-mail/automação renderize com a mesma aparência da prévia.
+      const styles = Array.from(document.querySelectorAll('style'))
+        .map(s => s.textContent)
+        .join('\n');
+      return `<style>${styles}</style>${articleEl.outerHTML}`;
+    }
+
     async function sendToWebhook(){
       const btn = document.getElementById('btnSendWebhook');
       const originalText = btn.textContent;
       const originalStyle = btn.getAttribute('style') || '';
+
+      if (WEBHOOK_PLACEHOLDER) {
+        alert('Configure a URL real do Webhook (constante WEBHOOK_URL) antes de usar este botão.');
+        return;
+      }
 
       btn.disabled = true;
       btn.textContent = 'Enviando...';
 
       const payload = {
         ...getData(),
-        htmlOrcamento: document.getElementById('orcamentoSheet').outerHTML,
-        htmlRecibo: document.getElementById('reciboSheet').outerHTML
+        htmlOrcamento: buildStandaloneHtml(document.getElementById('orcamentoSheet')),
+        htmlRecibo: buildStandaloneHtml(document.getElementById('reciboSheet'))
+      };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const resetButton = () => {
+        btn.textContent = originalText;
+        btn.setAttribute('style', originalStyle);
+        btn.disabled = false;
       };
 
       try {
         const response = await fetch(WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: controller.signal
         });
 
         if (!response.ok) throw new Error(`Falha no envio (HTTP ${response.status})`);
 
-        btn.textContent = 'Rascunho criado!';
+        // Um HTTP 2xx só confirma que o webhook recebeu a chamada, não que o
+        // Make/Zapier concluiu a criação do rascunho — por isso o texto é
+        // deliberadamente sobre o envio, não sobre a conclusão do rascunho.
+        btn.textContent = 'Enviado ao Webhook!';
         btn.style.backgroundColor = '#28a745';
         btn.style.borderColor = '#28a745';
-        setTimeout(() => {
-          btn.textContent = originalText;
-          btn.setAttribute('style', originalStyle);
-          btn.disabled = false;
-        }, 3000);
+        setTimeout(resetButton, 3000);
       } catch (err) {
+        const message = err.name === 'AbortError'
+          ? 'Tempo limite excedido ao contatar o Webhook.'
+          : err.message;
         btn.textContent = 'Erro ao enviar';
-        alert(`Erro ao enviar para o Webhook: ${err.message}`);
-        setTimeout(() => {
-          btn.textContent = originalText;
-          btn.setAttribute('style', originalStyle);
-          btn.disabled = false;
-        }, 3000);
+        alert(`Erro ao enviar para o Webhook: ${message}`);
+        setTimeout(resetButton, 3000);
+      } finally {
+        clearTimeout(timeoutId);
       }
     }
 
